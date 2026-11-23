@@ -1,10 +1,11 @@
 {
  "major": 1,
- "build": 4,
+ "build": 5,
  "date": "2026-11-23",
  "notes": [
-  "Web sources in the Library: add a big online document like the CARs by its web address; runs look up and quote just the sections they need",
-  "Search it: ask a question of a web source and get the exact sections with links"
+  "Full system check in Settings: one tiny real job per feature, with a copyable report",
+  "More reliable connections: automatic retries, timeouts and plain-English error messages",
+  "Lower costs: prompt caching for team steps and document questions, Claude Haiku for quick jobs"
  ],
- "version": "1.4"
+ "version": "1.5"
 }
