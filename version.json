@@ -1,9 +1,10 @@
 {
  "major": 1,
- "build": 3,
+ "build": 4,
  "date": "2026-11-23",
  "notes": [
-  "Outside check: compare a library document with the web for newer revisions, bulletins and regulator notices, always flagged UNVERIFIED"
+  "Web sources in the Library: add a big online document like the CARs by its web address; runs look up and quote just the sections they need",
+  "Search it: ask a question of a web source and get the exact sections with links"
  ],
- "version": "1.3"
+ "version": "1.4"
 }
