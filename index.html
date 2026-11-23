@@ -233,6 +233,7 @@ details>summary{cursor:pointer;list-style:none;display:inline-flex;gap:6px;align
     <label class="chk" id="uselibrow"><input type="checkbox" id="approved"> Use my library (approved documents only for technical content)</label>
     <label class="chk"><input type="checkbox" id="gates" checked> Let me approve the plan and outline before building</label>
     <label class="chk" id="narrrow" hidden><input type="checkbox" id="narrate"> Add narration to every slide (Gemini voice)</label>
+    <label class="chk"><input type="checkbox" id="best"> Best quality: Claude Fable directs (about 2× the Director cost)</label>
     <label class="chk"><input type="checkbox" id="demo"> Demo mode (no AI calls, no cost)</label>
     <div id="pickwrap"><label class="f" style="margin-top:4px">Pull from folders</label><div class="chips" id="folderpick"></div></div>
     <p class="hint" id="libstatus"></p>
@@ -444,8 +445,13 @@ details>summary{cursor:pointer;list-style:none;display:inline-flex;gap:6px;align
     <label class="f" for="m_gpt">ChatGPT text and image critic</label><input type="text" id="m_gpt">
     <label class="f" for="m_img">ChatGPT images</label><input type="text" id="m_img">
     <label class="f" for="m_edit">ChatGPT images from reference photos</label><input type="text" id="m_edit">
-    <label class="f" for="m_pplx">Perplexity</label><input type="text" id="m_pplx">
-    <label class="f" for="m_gem">Gemini (reviews, council, reading scanned pages)</label><input type="text" id="m_gem">
+    <label class="f" for="m_best">Best quality Director (used when "Best quality" is on)</label><input type="text" id="m_best">
+    <label class="f" for="illus">Who draws the images</label><select id="illus"><option value="chatgpt">ChatGPT</option><option value="gemini">Gemini (Nano Banana Pro, best for labels and text)</option><option value="both">Both: one draft each, the critic picks</option></select>
+    <label class="f" for="m_gimg">Gemini images</label><input type="text" id="m_gimg">
+    <label class="f" for="pplx_effort">Perplexity research depth</label><select id="pplx_effort"><option value="fast">Fast (quick facts, about 1¢)</option><option value="low">Standard (recommended, about 5¢)</option><option value="medium">Deep (about 15¢)</option><option value="high">Deep research (slow, about 60¢)</option></select>
+    <label class="f" for="m_pplx">Perplexity backup model (only if presets fail)</label><input type="text" id="m_pplx">
+    <label class="f" for="m_gem_review">Gemini second opinion (reviews, council, app audits)</label><input type="text" id="m_gem_review">
+    <label class="f" for="m_gem">Gemini reader (scanned pages, long summaries)</label><input type="text" id="m_gem">
     <label class="f" for="m_tts">Gemini voice (narration)</label><input type="text" id="m_tts">
     <label class="f" for="tts_voice">Narrator voice name</label><input type="text" id="tts_voice">
     <div class="btns"><button id="save2">Save</button><button id="reset">Restore defaults</button></div>
@@ -469,13 +475,15 @@ const toast = msg => { const d = document.createElement('div'); d.className = 't
 /* ---------- settings ---------- */
 const DEFAULTS = {
   k_anthropic:'', k_openai:'', k_perplexity:'', k_gemini:'', m_gem:'gemini-3.8-flash', m_tts:'gemini-3.8-flash-tts', tts_voice:'Kore',
-  m_director:'claude-opus-5-5', m_worker:'claude-sonnet-5-5', m_builder:'claude-opus-5-5', m_gpt:'gpt-6.2-sol', m_img:'gpt-image-2.6-flare', m_edit:'gpt-image-2.6-sunburst', m_pplx:'perplexity/sonar',
+  m_director:'claude-opus-5-5', m_worker:'claude-sonnet-5-5', m_builder:'claude-opus-5-5', m_gpt:'gpt-6.2-sol', m_img:'gpt-image-2.6-flare', m_edit:'gpt-image-2.6-sunburst', m_pplx:'perplexity/sonar', pplx_effort:'low', m_gem_review:'gemini-4-argon', m_best:'claude-fable-5-2', illus:'chatgpt', m_gimg:'gemini-3-pro-image',
   cands:2, minscore:7, cap:5, prices:'',
   house:'Clean, modern technical illustration for airline pilot training. Flat vector-like shading with subtle depth, white or very light grey background, a restrained palette of navy, mid blue, cool greys and a single amber accent for the item that matters. Crisp edges, even studio lighting, uncluttered composition with generous margins, readable at slide size. Absolutely no text, letters, numbers, logos or watermarks in the image.'
 };
 const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
 let S = { ...DEFAULTS, ...JSON.parse(ls.get('concordium.settings') || '{}') };
 const FIELDS = Object.keys(DEFAULTS);
+const BEST = () => !!document.getElementById('best')?.checked;
+const DIR = () => BEST() ? S.m_best : S.m_director, BLD = () => BEST() ? S.m_best : S.m_builder;
 { const OLD = {m_gpt: ['gpt-5.6'], m_img: ['gpt-image-2', 'gpt-image-1', 'gpt-image-1.5'], m_edit: ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-2']}; let ch = false;
   for (const [k, olds] of Object.entries(OLD)) if (olds.includes(S[k])) { S[k] = DEFAULTS[k]; ch = true; }
   if (ch) ls.set('concordium.settings', JSON.stringify(S)); }
@@ -837,14 +845,45 @@ async function gptImages(prompt, n, refs){
   meter('openai', u ? ((u.input_tokens_details?.text_tokens ?? u.input_tokens ?? 0) * pm[0] + (u.input_tokens_details?.image_tokens || 0) * (pm[2] || pm[0]) + (u.output_tokens || 0) * pm[1]) / 1e6 : out.length * price().image_estimate);
   return out;
 }
+async function geminiImages(prompt, n, refs){
+  capCheck();
+  if (DEMO) { await sleep(1200); meter('gemini', n * price().gemini_image_estimate); return Array.from({length: n}, (_, i) => demoImage('Gemini: ' + prompt, i + 3)); }
+  const b64 = blob => new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(blob); });
+  const refParts = await Promise.all(refs.map(async r => { const u = await b64(r.blob); return {inlineData: {mimeType: u.slice(5, u.indexOf(';')), data: u.slice(u.indexOf(',') + 1)}}; }));
+  const url = GEM + encodeURIComponent(S.m_gimg) + ':generateContent?key=' + encodeURIComponent(need('k_gemini'));
+  const one = async () => {
+    const body = cfg => ({contents: [{role: 'user', parts: [{text: prompt + '\n\nLandscape 3:2 image for a training slide. Any labels must be spelled exactly as given.'}, ...refParts]}], generationConfig: {responseModalities: ['TEXT', 'IMAGE'], ...cfg}});
+    let r;
+    try { r = await post(url, {}, body({imageConfig: {aspectRatio: '3:2', imageSize: '2K'}})); }
+    catch (e) { if (!/HTTP 400/.test(e.message)) throw e; r = await post(url, {}, body({})); }
+    const u = r.usageMetadata || {}, pm = price()[S.m_gimg] || [2, 12, 120];
+    meter('gemini', u.candidatesTokenCount ? ((u.promptTokenCount || 0) * pm[0] + u.candidatesTokenCount * (pm[2] || pm[1])) / 1e6 : price().gemini_image_estimate);
+    const d = (r.candidates?.[0]?.content?.parts || []).find(x => x.inlineData)?.inlineData;
+    return d ? `data:${d.mimeType || 'image/png'};base64,${d.data}` : null;
+  };
+  return (await Promise.all(Array.from({length: n}, one))).filter(Boolean);
+}
+// who draws: falls back to whichever service has a key
+function illusMode(){
+  const m = S.illus || 'chatgpt'; if (DEMO) return m;
+  const o = !!S.k_openai, g = !!S.k_gemini;
+  if (m === 'both') return o && g ? 'both' : o ? 'chatgpt' : 'gemini';
+  if (m === 'gemini') return g ? 'gemini' : 'chatgpt';
+  return o ? 'chatgpt' : g ? 'gemini' : 'chatgpt';
+}
+const useGptCritic = () => DEMO || !!S.k_openai;
 let pplxBlocked = false;
+const pplxCost = () => { const e = price().pplx_effort || {}; return e[S.pplx_effort] ?? 0.05; };
 async function research(instructions, input){
   capCheck();
-  if (DEMO) { await sleep(900); meter('perplexity', tokCost(S.m_pplx, 3000, 1500) + price().pplx_request); return `[demo research] ${input.slice(0, 160)}\n\nSources:\n- Example source - https://example.com`; }
+  if (DEMO) { await sleep(900); meter('perplexity', pplxCost()); return `[demo research] ${input.slice(0, 160)}\n\nSources:\n- Example source - https://example.com`; }
   if (S.k_perplexity && !pplxBlocked) {
     try {
-      const r = await post('https://api.perplexity.ai/v1/agent', {Authorization: 'Bearer ' + S.k_perplexity}, {model: S.m_pplx, instructions, input, tools: [{type:'web_search'}]});
-      meter('perplexity', +r.usage?.cost?.total_cost || (tokCost(S.m_pplx, r.usage?.input_tokens || 0, r.usage?.output_tokens || 0) + price().pplx_request));
+      const PH = {Authorization: 'Bearer ' + S.k_perplexity}; let r;
+      try { r = await post('https://api.perplexity.ai/v1/agent', PH, {effort: S.pplx_effort || 'low', instructions, input}); }
+      catch (e) { if (!/HTTP 4(00|22)/.test(e.message)) throw e; log('Perplexity', 'research', 'Research preset not accepted; using the backup model', 'err');
+        r = await post('https://api.perplexity.ai/v1/agent', PH, {model: S.m_pplx, instructions, input, tools: [{type:'web_search'}]}); }
+      meter('perplexity', +r.usage?.cost?.total_cost || pplxCost());
       let text = respText(r);
       const src = (r.output || []).filter(o => o.type === 'search_results').flatMap(o => o.results || []).map(s => `[web:${s.id}] ${s.title} - ${s.url}`);
       if (src.length) text += '\n\nSources:\n' + [...new Set(src)].join('\n');
@@ -901,13 +940,14 @@ async function geminiSpeak(text, style){
 
 /* ---------- cost meter ---------- */
 const PRICE_DEFAULTS = {
-  'claude-opus-5-5': [4, 20], 'claude-sonnet-5-5': [2, 10], 'claude-haiku-5-5': [0.1, 0.5],
+  'claude-fable-5-2': [8, 40], 'claude-opus-5-5': [4, 20], 'claude-sonnet-5-5': [2, 10], 'claude-haiku-5-5': [0.1, 0.5],
   'gpt-6.2-sol': [2, 10], 'gpt-6.2-astra': [8, 40],
   'gpt-image-2.6-flare': [5, 30, 8], 'gpt-image-2.6-sunburst': [5, 30, 8],
   'perplexity/sonar': [1, 1],
-  'gemini-3.8-flash': [1.5, 7.5], 'gemini-4-argon': [4, 20], 'gemini-3.8-flash-tts': [1.5, 20],
+  'gemini-3.8-flash': [1.5, 7.5], 'gemini-3-pro-image': [2, 12, 120], 'gemini-4-argon': [4, 20], 'gemini-3.8-flash-tts': [1.5, 20],
   google_search: 0.014, tts_estimate: 0.01,
-  web_search: 0.01, image_estimate: 0.10, pplx_request: 0.005
+  web_search: 0.01, image_estimate: 0.10, gemini_image_estimate: 0.14, pplx_request: 0.005,
+  pplx_effort: {fast: 0.01, low: 0.05, medium: 0.15, high: 0.6, xhigh: 1.5}
 };
 const price = () => { try { return {...PRICE_DEFAULTS, ...JSON.parse(S.prices || '{}')}; } catch (e) { return PRICE_DEFAULTS; } };
 const tokCost = (model, i, o) => { const p = price()[model] || [2, 10]; return (i * p[0] + o * p[1]) / 1e6; };
@@ -938,16 +978,16 @@ function renderSpend(){
 }
 function estimate(p, otype){
   const P = price(), W = S.m_worker, img = P.image_estimate, c = Math.max(1, +S.cands || 1);
-  let t = tokCost(S.m_director, 6000, 1500);
+  let t = tokCost(DIR(), 6000, 1500);
   for (const s of p.steps) {
     if (s.agent === 'claude') t += (AGENTS.claude.teams[s.team]?.length || 2) * tokCost(W, 8000, 2500) + (LIB ? tokCost(W, 10000, 3000) : 0);
-    else if (s.agent === 'gemini') t += tokCost(S.m_gem, 12000, 3000) + (s.team === 'research' ? 4 * P.google_search : 0);
-    else if (s.agent === 'perplexity') t += S.k_perplexity && !pplxBlocked ? 2 * (tokCost(S.m_pplx, 3000, 1500) + P.pplx_request) : 2 * (tokCost(W, 15000, 2000) + 5 * P.web_search);
+    else if (s.agent === 'gemini') t += tokCost(S.m_gem_review, 12000, 3000) + (s.team === 'research' ? 4 * P.google_search : 0);
+    else if (s.agent === 'perplexity') t += S.k_perplexity && !pplxBlocked ? 2 * (pplxCost()) : 2 * (tokCost(W, 15000, 2000) + 5 * P.web_search);
     else if (s.team === 'images' && s.bank) t += 0;
     else if (s.team === 'images') t += 1.3 * (tokCost(S.m_gpt, 3000, 500) + c * img + tokCost(S.m_gpt, 3000 + c * 1500, 300));
     else t += tokCost(S.m_gpt, 4000, 2000);
   }
-  t += otype === 'pptx' ? tokCost(W, 20000, 5000) : otype === 'app' ? tokCost(W, 15000, 2000) + 2.4 * tokCost(S.m_builder, 25000, 20000) : otype === 'text' || otype === 'scenario' ? 2 * tokCost(W, 20000, 6000) : 2 * tokCost(W, 20000, 8000);
+  t += otype === 'pptx' ? tokCost(W, 20000, 5000) : otype === 'app' ? tokCost(W, 15000, 2000) + 2.4 * tokCost(BLD(), 25000, 20000) : otype === 'text' || otype === 'scenario' ? 2 * tokCost(W, 20000, 6000) : 2 * tokCost(W, 20000, 8000);
   return t;
 }
 const estText = v => `Estimated cost: about ${money(v)} (likely ${money(v * 0.6)} to ${money(v * 1.6)})${+S.cap > 0 ? ` · cap ${money(+S.cap)} per run` : ''}`;
@@ -1010,7 +1050,7 @@ async function runTeam(step, context){
   for (const [r, inst] of roles) {
     role(step.agent, step.team, r, 'live'); log(a.n, step.team, `${r} working on ${step.id}`);
     let p = `TASK: ${step.task}\n` + (sources ? `\nAPPROVED SOURCE EXCERPTS:\n${sources}\n` : '') + (context ? `\nINPUT FROM OTHER TEAMS:\n${context}\n` : '') + (work ? `\nYOUR TEAMMATE'S DRAFT (you are the ${r}; improve it):\n${work}\n` : '');
-    work = step.agent === 'gemini' ? await gemini(inst + (OUTSIDE && step.team === 'research' ? ' This is OUTSIDE research for an approved-source training project: tag every fact [UNVERIFIED: <source>].' : ''), p, {web: step.team === 'research'}) : step.agent === 'perplexity' ? await research(inst + (OUTSIDE ? ' This is OUTSIDE research for an approved-source training project: tag every fact [UNVERIFIED: <source>].' : ''), p) : step.agent === 'chatgpt' ? await gptText(inst, p) : await claude(inst, p);
+    work = step.agent === 'gemini' ? await gemini(inst + (OUTSIDE && step.team === 'research' ? ' This is OUTSIDE research for an approved-source training project: tag every fact [UNVERIFIED: <source>].' : ''), p, {web: step.team === 'research', model: S.m_gem_review}) : step.agent === 'perplexity' ? await research(inst + (OUTSIDE ? ' This is OUTSIDE research for an approved-source training project: tag every fact [UNVERIFIED: <source>].' : ''), p) : step.agent === 'chatgpt' ? await gptText(inst, p) : await claude(inst, p);
     role(step.agent, step.team, r, 'done');
   }
   if (OUTSIDE && (step.agent === 'perplexity' || (step.agent === 'gemini' && step.team === 'research'))) work = 'OUTSIDE RESEARCH - NOT FROM THE APPROVED LIBRARY. Everything below is UNVERIFIED unless confirmed by an approved source.\n\n' + work;
@@ -1022,18 +1062,26 @@ async function imageTeam(step, context){
     return {text: `Image for ${step.id} from the image bank: ${bk.title}. Shows: ${bk.title}. Critic notes: none`, images: [bk.data], pick: 0}; }
   const refs = REFS.filter(r => (step.references || []).includes(r.name));
   role('chatgpt', 'images', 'Art director', 'live'); log('ChatGPT', 'images', `Art director briefing ${step.id}${refs.length ? ` from ${refs.length} reference photo(s)` : ''}`);
-  let prompt = (await gptText(ART_DIRECTOR, `TASK: ${step.task}\n\nHOUSE STYLE: ${S.house}\n${refs.length ? '\nREFERENCE PHOTOS: ' + refs.map(r => r.name).join(', ') + '\n' : ''}${context ? '\nLESSON CONTENT:\n' + context.slice(0, 4000) : ''}`, step.task)).trim() || step.task;
+  const MODE = illusMode(), artist = MODE === 'gemini' ? 'Gemini' : MODE === 'both' ? 'ChatGPT and Gemini' : 'ChatGPT';
+  const adText = (i, t, m) => useGptCritic() ? gptText(i, t, m) : gemini(i, t, {model: S.m_gem_review, mock: m});
+  let prompt = (await adText(ART_DIRECTOR, `TASK: ${step.task}\n\nHOUSE STYLE: ${S.house}\n${refs.length ? '\nREFERENCE PHOTOS: ' + refs.map(r => r.name).join(', ') + '\n' : ''}${context ? '\nLESSON CONTENT:\n' + context.slice(0, 4000) : ''}`, step.task)).trim() || step.task;
   prompt += '\n\nStyle: ' + S.house;
   role('chatgpt', 'images', 'Art director', 'done');
   let drafts = [], review = {}, bestIdx = 0;
   for (const attempt of [1, 2]) {
-    role('chatgpt', 'images', 'Illustrator', 'live'); log('ChatGPT', 'images', `Illustrator drawing ${S.cands} draft(s) for ${step.id}${attempt === 2 ? ' (redo)' : ''}`);
-    const made = await gptImages(prompt, Math.max(1, S.cands), refs);
+    role('chatgpt', 'images', 'Illustrator', 'live');
+    const nc = Math.max(1, S.cands);
+    log(MODE === 'gemini' ? 'Gemini' : MODE === 'both' ? 'Images' : 'ChatGPT', 'images', `${MODE === 'both' ? 'ChatGPT and Gemini each drawing 1 draft' : 'Illustrator drawing ' + nc + ' draft(s)'} for ${step.id}${attempt === 2 ? ' (redo)' : ''}`);
+    const made = MODE === 'gemini' ? await geminiImages(prompt, nc, refs)
+      : MODE === 'both' ? (await Promise.all([gptImages(prompt, Math.max(1, nc - 1), refs).catch(e => (log('ChatGPT', 'images', 'ChatGPT draft failed: ' + esc(e.message), 'err'), [])),
+                                               geminiImages(prompt, 1, refs).catch(e => (log('Gemini', 'images', 'Gemini draft failed: ' + esc(e.message), 'err'), []))])).flat()
+      : await gptImages(prompt, nc, refs);
     if (!made.length) throw new Error('no image returned');
     role('chatgpt', 'images', 'Illustrator', 'done'); role('chatgpt', 'images', 'Image critic', 'live');
     log('ChatGPT', 'images', `Image critic reviewing ${made.length} draft(s)`);
     try {
-      review = jsonOf(await gptVision(CRITIC, `BRIEF:\n${prompt}\n\nCandidates 1-${made.length} follow in order.`, made, JSON.stringify({best: 1, score: attempt === 1 ? 8 : 9, problems: ['demo review'], revised_prompt: prompt})));
+      const crit = (i, t, im, m) => useGptCritic() ? gptVision(i, t, im, m) : gemini(i, t, {images: im, model: S.m_gem_review, mock: m});
+      review = jsonOf(await crit(CRITIC, `BRIEF:\n${prompt}\n\nCandidates 1-${made.length} follow in order.`, made, JSON.stringify({best: 1, score: attempt === 1 ? 8 : 9, problems: ['demo review'], revised_prompt: prompt})));
     } catch (e) { review = {best: 1, score: null, problems: ['review failed: ' + e.message]}; }
     const pick = Math.min(Math.max(+review.best || 1, 1), made.length) - 1;
     drafts.push(...made); bestIdx = drafts.length - made.length + pick;
@@ -1060,7 +1108,7 @@ async function plan(goal, only, otype, nslides){
     {id:'s2', agent:'claude', team:'instructional_design', task:'Objectives, lesson structure and instructor notes', needs:['s1']},
     {id:'s3', agent:'chatgpt', team:'images', task:'System overview cutaway', needs:['s2']},
     {id:'s4', agent:'chatgpt', team:'images', task:'Flight deck panel close-up', needs:['s2'], references: REFS.slice(0, 1).map(r => r.name)}].concat(hasGem() ? [{id:'s5', agent:'gemini', team:'review', task:'Independent second-opinion review of the lesson', needs:['s2']}] : [])});
-  const p = jsonOf(await claude('You are the Director of a team of AI agents. You split work and assign it to the best agent.', prompt, {model: S.m_director, mock}));
+  const p = jsonOf(await claude('You are the Director of a team of AI agents. You split work and assign it to the best agent.', prompt, {model: DIR(), mock}));
   const ids = new Set(p.steps.map(s => s.id));
   p.steps.forEach(s => {
     if (only && s.agent === 'perplexity') { s.agent = 'claude'; s.team = 'writing'; s.task = 'Using only the approved library: ' + s.task; }
@@ -1316,16 +1364,16 @@ async function studioBuild(goal, results, prior){
   R('Developer', 'live'); log('Studio', 'app', prior ? `Developer building v${prior.version + 1}` : 'Developer writing the app');
   let html = htmlOf(await claude('You are a senior front-end developer. ' + DEV_RULES,
     prior ? `CURRENT APP (v${prior.version}):\n${prior.src}\n\nCHANGE REQUEST: ${prior.change}\n\nApply the change, keep everything else working, and return the complete updated file.\n\nAVAILABLE ARTWORK (image ids):\n${imgs}`
-          : `SPEC:\n${spec}\n\nAVAILABLE ARTWORK (image ids):\n${imgs}\n\nMATERIAL:\n${material}`, {model: S.m_builder, max: 32000, mock: DEMO_APP}));
+          : `SPEC:\n${spec}\n\nAVAILABLE ARTWORK (image ids):\n${imgs}\n\nMATERIAL:\n${material}`, {model: BLD(), max: 32000, mock: DEMO_APP}));
   R('Developer', 'done');
   R('Code reviewer', 'live'); log('Studio', 'app', 'Code reviewer checking for bugs and phone layout issues');
-  html = htmlOf(await claude('You are a meticulous code reviewer. Find and fix bugs, broken logic, missing features from the spec, accessibility problems and layouts that break on a 360px-wide phone. ' + DEV_RULES + ' Return the complete corrected file.', `SPEC:\n${spec}\n${prior ? '\nLATEST CHANGE REQUEST: ' + prior.change + '\n' : ''}\nAPP:\n${html}`, {model: S.m_builder, max: 32000, mock: html}));
+  html = htmlOf(await claude('You are a meticulous code reviewer. Find and fix bugs, broken logic, missing features from the spec, accessibility problems and layouts that break on a 360px-wide phone. ' + DEV_RULES + ' Return the complete corrected file.', `SPEC:\n${spec}\n${prior ? '\nLATEST CHANGE REQUEST: ' + prior.change + '\n' : ''}\nAPP:\n${html}`, {model: BLD(), max: 32000, mock: html}));
   R('Code reviewer', 'done');
   R('QA tester', 'live'); log('Studio', 'app', 'QA tester running the app');
   let errs = await qaRun(await inlineImages(html, results));
   if (errs.length) {
     log('Studio', 'app', 'QA found: ' + esc(errs.slice(0, 3).join('; ')) + ' - sending back to the developer', 'err');
-    html = htmlOf(await claude('You are a senior front-end developer fixing errors found in testing. ' + DEV_RULES, `ERRORS FROM TESTING:\n${errs.join('\n')}\n\nAPP:\n${html}\n\nFix every error and return the complete file.`, {model: S.m_builder, max: 32000, mock: html}));
+    html = htmlOf(await claude('You are a senior front-end developer fixing errors found in testing. ' + DEV_RULES, `ERRORS FROM TESTING:\n${errs.join('\n')}\n\nAPP:\n${html}\n\nFix every error and return the complete file.`, {model: BLD(), max: 32000, mock: html}));
     errs = await qaRun(await inlineImages(html, results));
   }
   log('Studio', 'app', 'QA: ' + (errs.length ? esc(errs.join('; ')) : 'runs with no errors'), errs.length ? 'err' : 'ok');
@@ -1472,7 +1520,7 @@ const approveItems = (title, items, label) => gate(`<h3>${title}</h3><p class="h
 /* ---------- council ---------- */
 async function council(q, mode, useLib){
   const members = [['Claude', p => claude(C_SYS, p)], ['ChatGPT', p => gptText(C_SYS, p)]];
-  if (hasGem()) members.push(['Gemini', p => gemini(C_SYS, p)]);
+  if (hasGem()) members.push(['Gemini', p => gemini(C_SYS, p, {model: S.m_gem_review})]);
   if (mode === 'create' || OUTSIDE) members.push([S.k_perplexity && !pplxBlocked ? 'Perplexity' : 'Claude web', p => research(C_SYS, p)]);
   let sources = '';
   if (useLib && LIB) { const hits = LIB.search(q, 8); hits.forEach(h => USED.add(LIB.cite(h))); sources = hits.map(h => `[${LIB.cite(h)}]\n${h.text}`).join('\n\n'); log('Library', '', `${hits.length} approved passages given to every member`); }
@@ -1486,7 +1534,7 @@ async function council(q, mode, useLib){
   $('cm-chair').className = 'role live'; log('Council', '', 'Chair comparing the answers');
   const names = answers.map(a => a[0]);
   const verdict = await claude(`You chair a council of AI models. Compare their answers to the user's question carefully and honestly.${sources ? ' The APPROVED SOURCE EXCERPTS are the authority: where a member disagrees with them, the excerpt wins.' : ''}${OUTSIDE ? ' Outside information is allowed but must stay labelled: every point in your answer that is not backed by an approved excerpt MUST carry [UNVERIFIED: source].' : ''} Write Markdown with exactly these sections:\n## Answer\nThe best-supported answer, concise, with citations where available.\n## Where they agree\nBullets.\n## Where they disagree\nA table: | Point | ${names.join(' | ')} | Most likely right, and why |. Write "None" if they fully agree.\n## Check before using\nAnything uncertain, unsupported or safety-critical, marked [VERIFY].`,
-    prompt + '\n\n' + answers.map(([n, a]) => `### ${n}'s answer\n${a}`).join('\n\n'), {model: S.m_director, max: 4000,
+    prompt + '\n\n' + answers.map(([n, a]) => `### ${n}'s answer\n${a}`).join('\n\n'), {model: DIR(), max: 4000,
     mock: `## Answer\nDemo consensus answer to: ${q}\n\n## Where they agree\n- Point one\n- Point two\n\n## Where they disagree\n| Point | ${names.join(' | ')} | Most likely right, and why |\n|---|${names.map(() => '---').join('|')}|---|\n| Example detail | ${names.map((n, i) => i ? 'Says B' : 'Says A').join(' | ')} | A, it matches the source [VERIFY] |\n\n## Check before using\n- [VERIFY] Example detail${OUTSIDE ? '\n- Extra outside detail [UNVERIFIED: general knowledge]' : ''}`});
   $('cm-chair').className = 'role done';
   return {verdict, answers};
@@ -1665,7 +1713,7 @@ async function editPass(who, instruction, src, demoEdits){
   const R = c => { const el = document.getElementById('im-' + slug(who)); if (el) el.className = 'role ' + c; };
   R('live'); log('Studio', 'improve', `${who} working`);
   const ask = async (instr, cur) => jsonOf(await claude(`You are a senior front-end developer improving an existing single-file web app with precise, surgical edits. ${EDIT_RULES}`,
-    `${instr}\n\nCURRENT FILE:\n${cur}`, {model: S.m_builder, max: 16000, mock: JSON.stringify({edits: demoEdits || [{find: '</body>', replace: `<!-- ${who}: improved by Auriga (demo) -->\n</body>`}], notes: 'demo edit'})}));
+    `${instr}\n\nCURRENT FILE:\n${cur}`, {model: BLD(), max: 16000, mock: JSON.stringify({edits: demoEdits || [{find: '</body>', replace: `<!-- ${who}: improved by Auriga (demo) -->\n</body>`}], notes: 'demo edit'})}));
   let j = await ask(instruction, src), r = applyEdits(src, j.edits);
   if (r.failed.length) {
     log('Studio', 'improve', `${r.failed.length} edit(s) didn't match the code, retrying them`, 'err');
@@ -1693,9 +1741,9 @@ async function improveApp(file, focus, gates){
   const ctx = `${focus ? 'OWNER\'S FOCUS: ' + focus + '\n\n' : ''}RUNTIME ISSUES FOUND: ${base.join('; ') || 'none'}\n\nAPP CODE:\n${orig}`;
   st('Claude auditor', 'live'); st('ChatGPT auditor', 'live'); log('Studio', 'improve', 'Claude and ChatGPT reviewing the app independently');
   const demoA = by => JSON.stringify({summary: 'Demo: a small app.', items: [{title: `Fix a demo bug (${by})`, why: 'Demo reason.', area: 'bug', priority: 'high', effort: 'small'}, {title: 'Bigger touch targets', why: 'Easier on a phone.', area: 'mobile', priority: 'medium', effort: 'small'}, {title: 'Add data backup', why: 'Protects saved data.', area: 'data', priority: 'low', effort: 'medium'}]});
-  const a3p = hasGem() ? (st('Gemini auditor', 'live'), gemini(AUDIT, ctx, {max: 6000, mock: demoA('Gemini')}).then(t => { st('Gemini auditor', 'done'); return jsonOf(t); }).catch(e => { log('Studio', 'improve', 'Gemini review failed: ' + esc(e.message), 'err'); return {items: []}; })) : Promise.resolve({items: []});
+  const a3p = hasGem() ? (st('Gemini auditor', 'live'), gemini(AUDIT, ctx, {model: S.m_gem_review, max: 6000, mock: demoA('Gemini')}).then(t => { st('Gemini auditor', 'done'); return jsonOf(t); }).catch(e => { log('Studio', 'improve', 'Gemini review failed: ' + esc(e.message), 'err'); return {items: []}; })) : Promise.resolve({items: []});
   const [a1, a2] = await Promise.all([
-    claude(AUDIT, ctx, {model: S.m_builder, max: 6000, mock: demoA('Claude')}).then(t => { st('Claude auditor', 'done'); return jsonOf(t); }).catch(e => { log('Studio', 'improve', 'Claude review failed: ' + esc(e.message), 'err'); return {items: []}; }),
+    claude(AUDIT, ctx, {model: BLD(), max: 6000, mock: demoA('Claude')}).then(t => { st('Claude auditor', 'done'); return jsonOf(t); }).catch(e => { log('Studio', 'improve', 'Claude review failed: ' + esc(e.message), 'err'); return {items: []}; }),
     gptText(AUDIT, ctx, demoA('ChatGPT')).then(t => { st('ChatGPT auditor', 'done'); return jsonOf(t); }).catch(e => { log('Studio', 'improve', 'ChatGPT review failed: ' + esc(e.message), 'err'); return {items: []}; })
   ]);
   const a3 = await a3p;
@@ -1835,7 +1883,7 @@ async function startRun(R, child = false){
         const hits = LIB ? LIB.search(goal, 10) : [];
         const design = jsonOf(await claude('You design airline pilot training courses as a sequence of modules. Each module must be teachable in one session and build on the previous one. Use the library outline below to keep modules within what the approved sources cover.',
           `COURSE REQUEST: ${goal}\nAbout ${n} modules.\n\nLIBRARY:\n${LIB ? LIB.summary() : '(none)'}\n\nSAMPLE OF THE MATERIAL:\n${hits.map(h => `[${LIB.cite(h)}] ${h.text.slice(0, 600)}`).join('\n\n')}\n\nReturn ONLY JSON: {"title": str, "audience": str, "summary": str, "style": "terminology and style rules every module must follow", "modules": [{"title": str, "focus": str, "objectives": [str], "outputs": ["pptx", "quiz", "cards", "drill"]}]} - choose the outputs each module really needs (always a deck; quiz for knowledge checks; cards or drill where there are memory items or procedures).`,
-          {model: S.m_director, max: 6000, mock: JSON.stringify({title: 'Demo course', audience: 'Demo pilots', summary: 'A demo course.', style: 'Use the same terms throughout.', modules: [{title: 'Module 1: Overview', focus: 'System overview', objectives: ['Describe the system'], outputs: ['pptx', 'quiz']}, {title: 'Module 2: Procedures', focus: 'Normal procedures', objectives: ['Apply the procedure'], outputs: ['pptx', 'drill']}]})}));
+          {model: DIR(), max: 6000, mock: JSON.stringify({title: 'Demo course', audience: 'Demo pilots', summary: 'A demo course.', style: 'Use the same terms throughout.', modules: [{title: 'Module 1: Overview', focus: 'System overview', objectives: ['Describe the system'], outputs: ['pptx', 'quiz']}, {title: 'Module 2: Procedures', focus: 'Normal procedures', objectives: ['Apply the procedure'], outputs: ['pptx', 'drill']}]})}));
         $('cr-d').className = 'role done';
         const per = {pptx: 1.0 + (F.narrate ? 0.15 : 0), quiz: 0.25, cards: 0.15, drill: 0.25}, estC = design.modules.reduce((t, m) => t + (m.outputs || []).reduce((u, o) => u + (per[o] || 0.3), 0), 0) + tokCost(S.m_worker, 20000, 6000);
         C.design = gates ? await approveCourse(design, estText(estC)) : design;
@@ -2250,12 +2298,12 @@ $('test').onclick = async () => {
   if (S.k_anthropic) await check('Claude', () => claude('Reply with OK.', 'ping', {max: 5}));
   if (S.k_openai) await check('OpenAI', () => post('https://api.openai.com/v1/responses', {Authorization: 'Bearer ' + S.k_openai}, {model: S.m_gpt, input: 'Reply with OK.', max_output_tokens: 16}));
   if (S.k_gemini) await check('Gemini', () => post(GEM + encodeURIComponent(S.m_gem) + ':generateContent?key=' + encodeURIComponent(S.k_gemini), {}, {contents: [{role: 'user', parts: [{text: 'Reply with OK.'}]}], generationConfig: {maxOutputTokens: 16}}));
-  if (S.k_perplexity) await check('Perplexity', async () => { try { await post('https://api.perplexity.ai/v1/agent', {Authorization: 'Bearer ' + S.k_perplexity}, {model: S.m_pplx, input: 'Reply with OK.', max_output_tokens: 16}); } catch (e) { if (e.network) e.message += ' - Claude web search will handle research instead'; throw e; } });
+  if (S.k_perplexity) await check('Perplexity', async () => { try { await post('https://api.perplexity.ai/v1/agent', {Authorization: 'Bearer ' + S.k_perplexity}, {effort: 'fast', input: 'Reply with OK.', max_output_tokens: 16}); } catch (e) { if (e.network) e.message += ' - Claude web search will handle research instead'; throw e; } });
   const model = async (name, url, headers) => { try { const r = await fetch(url, {headers}); res.push(r.ok ? `<div class="ok">${name}: model found</div>` : `<div class="bad">${name}: model name not recognised (HTTP ${r.status}). Fix it in Settings, Models.</div>`); } catch (e) { res.push(`<div class="bad">${name}: could not check</div>`); } out.innerHTML = res.join(''); };
   const ah = {'x-api-key': S.k_anthropic, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'}, oh = {Authorization: 'Bearer ' + S.k_openai};
-  if (S.k_anthropic) for (const k of ['m_director', 'm_worker', 'm_builder']) await model('Claude ' + S[k], 'https://api.anthropic.com/v1/models/' + encodeURIComponent(S[k]), ah);
+  if (S.k_anthropic) for (const k of ['m_director', 'm_worker', 'm_builder', 'm_best']) await model('Claude ' + S[k], 'https://api.anthropic.com/v1/models/' + encodeURIComponent(S[k]), ah);
   if (S.k_openai) for (const k of ['m_gpt', 'm_img', 'm_edit']) await model('OpenAI ' + S[k], 'https://api.openai.com/v1/models/' + encodeURIComponent(S[k]), oh);
-  if (S.k_gemini) for (const k of ['m_gem', 'm_tts']) await model('Gemini ' + S[k], GEM + encodeURIComponent(S[k]) + '?key=' + encodeURIComponent(S.k_gemini), {});
+  if (S.k_gemini) for (const k of ['m_gem', 'm_gem_review', 'm_gimg', 'm_tts']) await model('Gemini ' + S[k], GEM + encodeURIComponent(S[k]) + '?key=' + encodeURIComponent(S.k_gemini), {});
   if (S.k_openai) res.push('<div class="hint">If images fail later with "organization must be verified", complete Verify Organization in your OpenAI settings.</div>');
   out.innerHTML = res.join('');
   if (!res.length) out.textContent = 'Add at least one key first.';
