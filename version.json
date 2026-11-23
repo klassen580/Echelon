@@ -1,9 +1,9 @@
 {
  "major": 1,
- "build": 2,
+ "build": 3,
  "date": "2026-11-23",
  "notes": [
-  "New name and logo: Auriga is now Echelon"
+  "Outside check: compare a library document with the web for newer revisions, bulletins and regulator notices, always flagged UNVERIFIED"
  ],
- "version": "1.2"
+ "version": "1.3"
 }
