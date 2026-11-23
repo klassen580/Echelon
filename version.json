@@ -1,0 +1,11 @@
+{
+ "major": 1,
+ "build": 1,
+ "date": "2026-11-23",
+ "notes": [
+  "Version tracker on the home screen: tells you when a newer version is published",
+  "Model upgrades: Perplexity research presets, Gemini 4 Argon second opinions, Best quality (Fable) switch, Gemini illustrator",
+  "Tabs moved into the mountain banner, full peak showing"
+ ],
+ "version": "1.1"
+}
