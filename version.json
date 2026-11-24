@@ -1,11 +1,9 @@
 {
  "major": 1,
- "build": 27,
+ "build": 28,
  "date": "2026-11-24",
  "notes": [
-  "Sync can now include the Work side (Work library, projects, rules) and your master deck and airline template: two tick boxes in Settings \u2192 Sync",
-  "A Work folder named 'Local only' never syncs",
-  "Remove Work items from Drive: one tap, and other devices stop syncing Work without losing anything"
+  "Improve my app and Restyle my app now take apps up to about 500 KB of code (was 350 KB)"
  ],
- "version": "1.27"
+ "version": "1.28"
 }
