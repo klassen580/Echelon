@@ -1,10 +1,11 @@
 {
  "major": 1,
- "build": 25,
+ "build": 26,
  "date": "2026-11-24",
  "notes": [
-  "Improve my app: new 'Suggestions only' tick box lists every fix with where and how to make it, ready to paste into Claude; your app isn't changed",
-  "Copy for Claude button on the results, plus a fix list file"
+  "Sync across devices (Settings): your Create library, projects, image bank, rules and settings stay the same on phone, computers and iPad through your own Google Drive",
+  "Optional: sync your API keys too, locked with a passphrase",
+  "Work library, Work projects, master deck and airline template never leave the device"
  ],
- "version": "1.25"
+ "version": "1.26"
 }
