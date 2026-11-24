@@ -1,9 +1,11 @@
 {
  "major": 1,
- "build": 19,
+ "build": 20,
  "date": "2026-11-24",
  "notes": [
-  "Removed Redesign my PowerPoint: rebuilding a deck from scratch lost its design. A version that edits your deck in place is coming"
+  "Master deck: upload one PowerPoint in your style and every deck Echelon builds or edits follows it",
+  "New output: Update a deck to my master (free, runs on your device, with a crowded-slide report)",
+  "Old template banners and backgrounds are removed; text, pictures, tables and notes carried across"
  ],
- "version": "1.19"
+ "version": "1.20"
 }
