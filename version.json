@@ -1,9 +1,10 @@
 {
  "major": 1,
- "build": 6,
+ "build": 7,
  "date": "2026-11-23",
  "notes": [
-  "Perplexity research now lists the sources it actually cites first, with dates, and reports failed or incomplete answers clearly"
+  "Fix: Gemini answers no longer come back empty when it thinks before replying",
+  "Perplexity with no API credits now hands research to Claude web search automatically"
  ],
- "version": "1.6"
+ "version": "1.7"
 }
