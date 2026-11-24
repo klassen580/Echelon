@@ -1,11 +1,11 @@
 {
  "major": 1,
- "build": 23,
+ "build": 24,
  "date": "2026-11-24",
  "notes": [
-  "Fixed empty Claude replies (stopped: max_tokens): Claude 5 models think before answering, so every call now leaves room for both",
-  "If Claude still runs out of room, Echelon asks again automatically with lighter thinking",
-  "Improve my app uses medium thinking for reviews and edits: faster, and no empty replies"
+  "New in Create: Restyle my app (look and pictures)",
+  "Echelon photographs your app at phone size, suggests 3 looks that suit it, redraws the pictures you pick in one matching style and polishes the design",
+  "You see before and after screenshots and choose what to keep; logic and saved data are never touched"
  ],
- "version": "1.23"
+ "version": "1.24"
 }
