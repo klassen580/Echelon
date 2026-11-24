@@ -1,11 +1,10 @@
 {
  "major": 1,
- "build": 21,
+ "build": 22,
  "date": "2026-11-24",
  "notes": [
-  "Master deck: body text takes your house colour (navy), so every deck reads the same",
-  "Theme background: pick a picture per deck, faded like your master; titles and text stay the same",
-  "The background now sits in the slide layout, so changing it once in PowerPoint (View \u2192 Slide Master) updates every slide"
+  "Improve my app handles bigger apps: pasted-in libraries, raw image data and large SVG artwork are set aside and kept exactly",
+  "If an app is still too big, the message says how big and which part is largest"
  ],
- "version": "1.21"
+ "version": "1.22"
 }
