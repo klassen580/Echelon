@@ -1,11 +1,10 @@
 {
  "major": 1,
- "build": 24,
+ "build": 25,
  "date": "2026-11-24",
  "notes": [
-  "New in Create: Restyle my app (look and pictures)",
-  "Echelon photographs your app at phone size, suggests 3 looks that suit it, redraws the pictures you pick in one matching style and polishes the design",
-  "You see before and after screenshots and choose what to keep; logic and saved data are never touched"
+  "Improve my app: new 'Suggestions only' tick box lists every fix with where and how to make it, ready to paste into Claude; your app isn't changed",
+  "Copy for Claude button on the results, plus a fix list file"
  ],
- "version": "1.24"
+ "version": "1.25"
 }
