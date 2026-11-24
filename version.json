@@ -1,10 +1,9 @@
 {
  "major": 1,
- "build": 10,
+ "build": 11,
  "date": "2026-11-23",
  "notes": [
-  "Web sources: long sections such as CARs 421.34 come through complete",
-  "Search it shows whether the quick look or the deeper search found the answer"
+  "Our operation (Settings): tell Echelon what you fly. It defaults to a Canadian 737 MAX airline, aeroplanes only, so Work runs, summaries and web lookups leave out helicopter and other non-aeroplane rules"
  ],
- "version": "1.10"
+ "version": "1.11"
 }
