@@ -1,9 +1,11 @@
 {
  "major": 1,
- "build": 16,
+ "build": 17,
  "date": "2026-11-24",
  "notes": [
-  "Update checker follows the new address: klassen580.github.io/Echelon"
+  "Improve my app costs about half as much: Claude Sonnet does the app edits (Opus or Fable with Best quality), and the app's code is cached so retries are cheap",
+  "The approval screen shows a live cost estimate as you tick changes, and warns when a run will be expensive",
+  "Approval screens are easier to use: tap anywhere on a row, bigger tick boxes, Select all / Select none and a live count"
  ],
- "version": "1.16"
+ "version": "1.17"
 }
