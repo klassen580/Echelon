@@ -1,10 +1,10 @@
 {
  "major": 1,
- "build": 9,
+ "build": 10,
  "date": "2026-11-23",
  "notes": [
-  "Web sources: excerpts now include the whole section instead of stopping part-way",
-  "Web source lookups cost less: the first look uses Claude Haiku, with the teams model only for the deeper retry"
+  "Web sources: long sections such as CARs 421.34 come through complete",
+  "Search it shows whether the quick look or the deeper search found the answer"
  ],
- "version": "1.9"
+ "version": "1.10"
 }
