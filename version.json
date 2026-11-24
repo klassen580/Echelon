@@ -1,11 +1,9 @@
 {
  "major": 1,
- "build": 5,
+ "build": 6,
  "date": "2026-11-23",
  "notes": [
-  "Full system check in Settings: one tiny real job per feature, with a copyable report",
-  "More reliable connections: automatic retries, timeouts and plain-English error messages",
-  "Lower costs: prompt caching for team steps and document questions, Claude Haiku for quick jobs"
+  "Perplexity research now lists the sources it actually cites first, with dates, and reports failed or incomplete answers clearly"
  ],
- "version": "1.5"
+ "version": "1.6"
 }
