@@ -1,9 +1,10 @@
 {
  "major": 1,
- "build": 14,
+ "build": 15,
  "date": "2026-11-24",
  "notes": [
-  "Fix: backups made while the app was called Auriga can be restored again"
+  "Improve my app no longer stops if one step's reply can't be read: it retries more simply, then one change at a time, and skips only what still fails (listed in the report)",
+  "Improvements are made 3 at a time, with more time allowed for each step"
  ],
- "version": "1.14"
+ "version": "1.15"
 }
