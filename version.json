@@ -1,11 +1,11 @@
 {
  "major": 1,
- "build": 20,
+ "build": 21,
  "date": "2026-11-24",
  "notes": [
-  "Master deck: upload one PowerPoint in your style and every deck Echelon builds or edits follows it",
-  "New output: Update a deck to my master (free, runs on your device, with a crowded-slide report)",
-  "Old template banners and backgrounds are removed; text, pictures, tables and notes carried across"
+  "Master deck: body text takes your house colour (navy), so every deck reads the same",
+  "Theme background: pick a picture per deck, faded like your master; titles and text stay the same",
+  "The background now sits in the slide layout, so changing it once in PowerPoint (View \u2192 Slide Master) updates every slide"
  ],
- "version": "1.20"
+ "version": "1.21"
 }
