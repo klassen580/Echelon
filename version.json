@@ -1,10 +1,11 @@
 {
  "major": 1,
- "build": 22,
+ "build": 23,
  "date": "2026-11-24",
  "notes": [
-  "Improve my app handles bigger apps: pasted-in libraries, raw image data and large SVG artwork are set aside and kept exactly",
-  "If an app is still too big, the message says how big and which part is largest"
+  "Fixed empty Claude replies (stopped: max_tokens): Claude 5 models think before answering, so every call now leaves room for both",
+  "If Claude still runs out of room, Echelon asks again automatically with lighter thinking",
+  "Improve my app uses medium thinking for reviews and edits: faster, and no empty replies"
  ],
- "version": "1.22"
+ "version": "1.23"
 }
