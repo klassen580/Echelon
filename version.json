@@ -1,10 +1,9 @@
 {
  "major": 1,
- "build": 13,
- "date": "2026-11-23",
+ "build": 14,
+ "date": "2026-11-24",
  "notes": [
-  "Improve my app and other text-only runs now need only your Claude key",
-  "Clearer message when a new phone or browser doesn't have your keys yet"
+  "Fix: backups made while the app was called Auriga can be restored again"
  ],
- "version": "1.13"
+ "version": "1.14"
 }
