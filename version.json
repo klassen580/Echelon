@@ -1,10 +1,10 @@
 {
  "major": 1,
- "build": 12,
+ "build": 13,
  "date": "2026-11-23",
  "notes": [
-  "Web sources: if the first look only finds short search previews, Echelon opens the pages for the full text",
-  "Search it suggests adding big PDFs (like the AIM) to the Library as documents for complete, exact text"
+  "Improve my app and other text-only runs now need only your Claude key",
+  "Clearer message when a new phone or browser doesn't have your keys yet"
  ],
- "version": "1.12"
+ "version": "1.13"
 }
