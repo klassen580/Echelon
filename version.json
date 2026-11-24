@@ -1,11 +1,11 @@
 {
  "major": 1,
- "build": 17,
+ "build": 18,
  "date": "2026-11-24",
  "notes": [
-  "Improve my app costs about half as much: Claude Sonnet does the app edits (Opus or Fable with Best quality), and the app's code is cached so retries are cheap",
-  "The approval screen shows a live cost estimate as you tick changes, and warns when a run will be expensive",
-  "Approval screens are easier to use: tap anywhere on a row, bigger tick boxes, Select all / Select none and a live count"
+  "New in Work and Create: Redesign my PowerPoint. Upload your deck and get it back with a modern design, using the same content",
+  "The redesign checks every number and limit against your original, keeps your pictures and speaker notes, and uses your airline template if you've added one",
+  "All decks get richer layouts: section dividers, two columns, key figures, WARNING/CAUTION/NOTE and memory-item boxes, styled tables and big-picture slides, with slide numbers"
  ],
- "version": "1.17"
+ "version": "1.18"
 }
