@@ -1,10 +1,10 @@
 {
  "major": 1,
- "build": 7,
+ "build": 8,
  "date": "2026-11-23",
  "notes": [
-  "Fix: Gemini answers no longer come back empty when it thinks before replying",
-  "Perplexity with no API credits now hands research to Claude web search automatically"
+  "Web sources (CARs): if the first look finds nothing, Echelon searches the site's pages more deeply and tries again",
+  "Long web lookups that pause part-way now finish instead of returning nothing"
  ],
- "version": "1.7"
+ "version": "1.8"
 }
