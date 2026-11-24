@@ -1,9 +1,10 @@
 {
  "major": 1,
- "build": 11,
+ "build": 12,
  "date": "2026-11-23",
  "notes": [
-  "Our operation (Settings): tell Echelon what you fly. It defaults to a Canadian 737 MAX airline, aeroplanes only, so Work runs, summaries and web lookups leave out helicopter and other non-aeroplane rules"
+  "Web sources: if the first look only finds short search previews, Echelon opens the pages for the full text",
+  "Search it suggests adding big PDFs (like the AIM) to the Library as documents for complete, exact text"
  ],
- "version": "1.11"
+ "version": "1.12"
 }
