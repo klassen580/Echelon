@@ -1,11 +1,11 @@
 {
  "major": 1,
- "build": 26,
+ "build": 27,
  "date": "2026-11-24",
  "notes": [
-  "Sync across devices (Settings): your Create library, projects, image bank, rules and settings stay the same on phone, computers and iPad through your own Google Drive",
-  "Optional: sync your API keys too, locked with a passphrase",
-  "Work library, Work projects, master deck and airline template never leave the device"
+  "Sync can now include the Work side (Work library, projects, rules) and your master deck and airline template: two tick boxes in Settings \u2192 Sync",
+  "A Work folder named 'Local only' never syncs",
+  "Remove Work items from Drive: one tap, and other devices stop syncing Work without losing anything"
  ],
- "version": "1.26"
+ "version": "1.27"
 }
