@@ -1,10 +1,11 @@
 {
  "major": 1,
- "build": 31,
- "date": "2026-11-24",
+ "build": 32,
+ "date": "2026-11-25",
  "notes": [
-  "Economy mode (off by default): about half the Claude cost. Sonnet directs, Haiku runs the teams, lighter thinking, lighter web lookups, and Improve my app skips the Claude review when ChatGPT or Gemini can do it",
-  "The run log says when Economy or Best quality is on"
+  "Improve my app and Restyle now keep ONE cached copy of your app's code for an hour: every review and edit step, and a rerun on the same file within the hour, reads it at about a tenth of the price",
+  "The run log shows how much was read from the cache",
+  "Cost estimates updated to match"
  ],
- "version": "1.31"
+ "version": "1.32"
 }
