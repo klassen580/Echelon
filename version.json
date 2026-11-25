@@ -1,9 +1,10 @@
 {
  "major": 1,
- "build": 30,
+ "build": 31,
  "date": "2026-11-24",
  "notes": [
-  "Fixed overlapping text on the Suggestions only tick box"
+  "Economy mode (off by default): about half the Claude cost. Sonnet directs, Haiku runs the teams, lighter thinking, lighter web lookups, and Improve my app skips the Claude review when ChatGPT or Gemini can do it",
+  "The run log says when Economy or Best quality is on"
  ],
- "version": "1.30"
+ "version": "1.31"
 }
