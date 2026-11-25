@@ -1,11 +1,10 @@
 {
  "major": 1,
- "build": 32,
+ "build": 33,
  "date": "2026-11-25",
  "notes": [
-  "Improve my app and Restyle now keep ONE cached copy of your app's code for an hour: every review and edit step, and a rerun on the same file within the hour, reads it at about a tenth of the price",
-  "The run log shows how much was read from the cache",
-  "Cost estimates updated to match"
+  "Improve my app and Restyle my app: paste a web address instead of uploading (works for your GitHub Pages sites and github.com repository or file links)",
+  "Echelon warns when a site loads separate style or script files it can't edit"
  ],
- "version": "1.32"
+ "version": "1.33"
 }
