@@ -1,10 +1,9 @@
 {
  "major": 1,
- "build": 29,
+ "build": 30,
  "date": "2026-11-24",
  "notes": [
-  "Copy for Claude now appears after every Improve my app run: with Suggestions only you get each fix and how; on a full run you get what couldn't be done plus what was changed",
-  "The Suggestions only tick box is easier to spot"
+  "Fixed overlapping text on the Suggestions only tick box"
  ],
- "version": "1.29"
+ "version": "1.30"
 }
