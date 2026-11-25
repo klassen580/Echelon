@@ -1,10 +1,9 @@
 {
  "major": 1,
- "build": 33,
+ "build": 34,
  "date": "2026-11-25",
  "notes": [
-  "Improve my app and Restyle my app: paste a web address instead of uploading (works for your GitHub Pages sites and github.com repository or file links)",
-  "Echelon warns when a site loads separate style or script files it can't edit"
+  "New in Create: Rebuild from a website. Paste the address of a site you own, Claude reads its main pages, you approve the pages and pictures, and the Studio builds a new modern single-file site with the same content"
  ],
- "version": "1.33"
+ "version": "1.34"
 }
