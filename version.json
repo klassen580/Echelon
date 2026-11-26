@@ -1,11 +1,10 @@
 {
  "major": 1,
- "build": 36,
+ "build": 37,
  "date": "2026-11-26",
  "notes": [
-  "Workspaces (Work and Create): a project that remembers. It keeps a brief, style, standing notes for each specialist agent (Researcher, Writer, Designer, Reviewer, Builder) and a summary of everything it has made, and every run in it reads all of that",
-  "Task list: queue several tasks in a workspace and Echelon runs them one after another, each building on the last",
-  "Workspaces sync with Google Drive and are included in backups"
+  "Revision watcher: a weekly Claude agent checks the CARs for new amendments; Echelon shows which of your projects, documents and workspaces mention the changed sections and can draft an updated version",
+  "Regulatory checker: 'Check against the CARs' on deck and document results checks every regulatory statement against the current CARs, with quotes and links"
  ],
- "version": "1.36"
+ "version": "1.37"
 }
