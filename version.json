@@ -1,10 +1,11 @@
 {
  "major": 1,
- "build": 37,
+ "build": 38,
  "date": "2026-11-26",
  "notes": [
-  "Revision watcher: a weekly Claude agent checks the CARs for new amendments; Echelon shows which of your projects, documents and workspaces mention the changed sections and can draft an updated version",
-  "Regulatory checker: 'Check against the CARs' on deck and document results checks every regulatory statement against the current CARs, with quotes and links"
+  "New in Create: Pictures for my app. List the pictures, Echelon draws them in one style, resizes and compresses them to small WebP files with clear names, and zips them for your app's images/ folder",
+  "Apps loaded by web address now show their separate image files in previews and tests; the extra tag is removed from every file Echelon gives back",
+  "Fixed: picture drawing in Rebuild from a website"
  ],
- "version": "1.37"
+ "version": "1.38"
 }
