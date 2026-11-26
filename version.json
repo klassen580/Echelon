@@ -1,9 +1,11 @@
 {
  "major": 1,
- "build": 34,
+ "build": 35,
  "date": "2026-11-25",
  "notes": [
-  "New in Create: Rebuild from a website. Paste the address of a site you own, Claude reads its main pages, you approve the pages and pictures, and the Studio builds a new modern single-file site with the same content"
+  "Web sources (like the CARs) use smart filtering: Claude keeps only the relevant parts of long pages before reading them, so lookups cost less",
+  "Search it shows the method and cost, with a tick box to compare against the old way",
+  "Falls back automatically if smart filtering isn't available"
  ],
- "version": "1.34"
+ "version": "1.35"
 }
