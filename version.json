@@ -1,11 +1,11 @@
 {
  "major": 1,
- "build": 35,
- "date": "2026-11-25",
+ "build": 36,
+ "date": "2026-11-26",
  "notes": [
-  "Web sources (like the CARs) use smart filtering: Claude keeps only the relevant parts of long pages before reading them, so lookups cost less",
-  "Search it shows the method and cost, with a tick box to compare against the old way",
-  "Falls back automatically if smart filtering isn't available"
+  "Workspaces (Work and Create): a project that remembers. It keeps a brief, style, standing notes for each specialist agent (Researcher, Writer, Designer, Reviewer, Builder) and a summary of everything it has made, and every run in it reads all of that",
+  "Task list: queue several tasks in a workspace and Echelon runs them one after another, each building on the last",
+  "Workspaces sync with Google Drive and are included in backups"
  ],
- "version": "1.35"
+ "version": "1.36"
 }
