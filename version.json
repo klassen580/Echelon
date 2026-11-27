@@ -1,11 +1,9 @@
 {
  "major": 1,
- "build": 38,
+ "build": 39,
  "date": "2026-11-26",
  "notes": [
-  "New in Create: Pictures for my app. List the pictures, Echelon draws them in one style, resizes and compresses them to small WebP files with clear names, and zips them for your app's images/ folder",
-  "Apps loaded by web address now show their separate image files in previews and tests; the extra tag is removed from every file Echelon gives back",
-  "Fixed: picture drawing in Rebuild from a website"
+  "Suggestions only can read apps up to 700 KB"
  ],
- "version": "1.38"
+ "version": "1.39"
 }
