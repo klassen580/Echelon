@@ -1,20 +1,15 @@
 {
  "major": 1,
- "build": 42,
+ "build": 43,
  "date": "2026-11-27",
  "notes": [
-  "Full screen app previews run sealed off from your keys and library",
-  "Stop button during runs; one AI job at a time",
-  "Backups include saved pictures, master deck and brand kit; API keys in backups are locked with a passphrase; restores are checked",
-  "Storage errors are reported, the browser is asked to protect Echelon's data, and old backups get a reminder",
-  "Spending cap covers web lookups and whole courses",
-  "Safer handling of AI-made links and plan steps",
-  "Library-only questions with no matching passages stop instead of asking without sources",
-  "CARs checker says when statements couldn't be confirmed",
-  "Master deck conversion needs no key and reports dropped subtitle lines",
-  "Long document comparisons read every page",
-  "Runs built from Local only documents and summaries stay off Create sync",
-  "Accessibility and phone layout fixes"
+  "Faster project lists and a size for each project",
+  "Search boxes for Projects and the Library",
+  "Drag labels to move them in the image label editor",
+  "Lower memory use when reading big PDFs on phones and tablets",
+  "Biggest projects list in Settings to free space",
+  "PowerPoint and zip tools load only when needed, so Echelon opens faster",
+  "Share a single workspace as a file and import one"
  ],
- "version": "1.42"
+ "version": "1.43"
 }
