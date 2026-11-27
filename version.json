@@ -1,15 +1,9 @@
 {
  "major": 1,
- "build": 43,
+ "build": 44,
  "date": "2026-11-27",
  "notes": [
-  "Faster project lists and a size for each project",
-  "Search boxes for Projects and the Library",
-  "Drag labels to move them in the image label editor",
-  "Lower memory use when reading big PDFs on phones and tablets",
-  "Biggest projects list in Settings to free space",
-  "PowerPoint and zip tools load only when needed, so Echelon opens faster",
-  "Share a single workspace as a file and import one"
+  "Restyle my app shows a live preview of your app in each suggested look before you pick, with optional sample pictures"
  ],
- "version": "1.43"
+ "version": "1.44"
 }

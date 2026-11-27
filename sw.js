@@ -2,7 +2,7 @@
 // Always tries the internet first so a new version shows up straight away;
 // the saved copy is used only when there is no connection.
 // It never touches AI, Google or other outside requests.
-const CACHE = 'echelon-v4';
+const CACHE = 'echelon-v5';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
