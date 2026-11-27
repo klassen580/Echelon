@@ -1,9 +1,9 @@
 {
  "major": 1,
- "build": 40,
- "date": "2026-11-26",
+ "build": 41,
+ "date": "2026-11-27",
  "notes": [
-  "Installable app on Windows, Android and iPad; always loads the newest version when online"
+  "Sharper Echelon icon"
  ],
- "version": "1.40"
+ "version": "1.41"
 }
